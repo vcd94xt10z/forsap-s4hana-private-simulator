@@ -1,17 +1,42 @@
 {
   "name": "forsap-s4hana-private-simulator",
-  "version": "1.0.0",
-  "description": "Simulador local de APIs OData do SAP S/4HANA Private Edition",
+  "version": "0.1.0",
+  "description": "Local simulator for SAP S/4HANA Private Edition APIs, supporting OData V2/V4, CRUD operations, queries, filters, metadata and in-memory SQLite using SAP CAP.",
   "type": "module",
-  "dependencies": {
-    "@sap/cds": "^10"
-  },
-  "devDependencies": {
-    "@cap-js/sqlite": "^3"
-  },
+  "main": "srv/server.js",
   "scripts": {
     "start": "cds-serve",
-    "watch": "cds watch"
+    "watch": "cds watch",
+    "test:simulator": "node test-simulator.js"
   },
-  "private": true
+  "keywords": [
+    "sap",
+    "s4hana",
+    "s4hana-private-edition",
+    "odata",
+    "odata-v2",
+    "odata-v4",
+    "cap",
+    "sap-cap",
+    "simulator",
+    "business-partner"
+  ],
+  "author": "Vinicius Cesar Dias",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vcd94xt10z/forsap-s4hana-private-simulator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vcd94xt10z/forsap-s4hana-private-simulator/issues"
+  },
+  "homepage": "https://github.com/vcd94xt10z/forsap-s4hana-private-simulator",
+  "dependencies": {
+    "@sap/cds": "^10.0.0",
+    "@cap-js-community/odata-v2-adapter": "^1.16.0"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^3.0.0"
+  },
+  "private": false
 }

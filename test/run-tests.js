@@ -765,7 +765,7 @@ async function writeResults(testStartTime, testEndTime) {
     const output = {
         metadata: {
             project:
-                "FOR SAP S/4HANA Private Simulator",
+                "FORSAP S/4HANA Private Simulator",
             server:
                 BASE_URL,
             startTime:
@@ -835,30 +835,6 @@ async function runTest(testFunction) {
 async function main() {
     const testStartTime = new Date();
 
-    console.log(
-        "\n=================================================="
-    );
-
-    console.log(
-        " FOR SAP S/4HANA PRIVATE SIMULATOR - TESTES"
-    );
-
-    console.log(
-        "=================================================="
-    );
-
-    console.log(
-        `Servidor: ${BASE_URL}`
-    );
-
-    console.log(
-        `Início: ${formatDateTime(testStartTime)}`
-    );
-
-    console.log(
-        "\n========== INICIANDO TESTES ODATA V2 ==========\n"
-    );
-
     await runTest(
         testV2Metadata
     );
@@ -920,14 +896,6 @@ async function main() {
         testV2Crud
     );
 
-    console.log(
-        "\n========== TESTES ODATA V2 FINALIZADOS ==========\n"
-    );
-
-    console.log(
-        "========== INICIANDO TESTES ODATA V4 ==========\n"
-    );
-
     await runTest(
         testV4Metadata
     );
@@ -972,79 +940,15 @@ async function main() {
     await runTest(
         () => testV4NotFound(suppliersV4)
     );
-
-    console.log(
-        "\n========== TESTES ODATA V4 FINALIZADOS ==========\n"
-    );
-
-    const testEndTime = new Date();
+const testEndTime = new Date();
 
     await writeResults(
         testStartTime,
         testEndTime
     );
 
-    const passed = results.filter(
-        item => item.status === "OK"
-    ).length;
-
-    const failed = results.filter(
-        item => item.status === "ERRO"
-    ).length;
-
-    const skipped = results.filter(
-        item => item.status === "IGNORADO"
-    ).length;
-
-    const durationMs =
-        testEndTime.getTime() -
-        testStartTime.getTime();
-
-    const durationSeconds =
-        (durationMs / 1000).toFixed(2);
-
     console.log(
-        "=================================================="
-    );
-
-    console.log(
-        " RESUMO DOS TESTES"
-    );
-
-    console.log(
-        "=================================================="
-    );
-
-    console.log(
-        `Início:    ${formatDateTime(testStartTime)}`
-    );
-
-    console.log(
-        `Fim:       ${formatDateTime(testEndTime)}`
-    );
-
-    console.log(
-        `Duração:   ${durationSeconds} segundos`
-    );
-
-    console.log(
-        `Total:     ${results.length}`
-    );
-
-    console.log(
-        `Passou:    ${passed}`
-    );
-
-    console.log(
-        `Erros:     ${failed}`
-    );
-
-    console.log(
-        `Ignorados: ${skipped}`
-    );
-
-    console.log(
-        "\nResultado dos testes:"
+        "Resultado dos testes:"
     );
 
     console.log(
@@ -1052,25 +956,19 @@ async function main() {
     );
 
     console.log(
-        "\nAbrindo resultado no navegador padrão..."
+        "Abrindo resultado no navegador padrão..."
     );
 
     openInDefaultBrowser(
         REPORT_URL
     );
 
-    console.log("");
+    const failed = results.filter(
+        item => item.status === "ERRO"
+    ).length;
 
     if (failed > 0) {
-        console.log(
-            "Existem testes com erro."
-        );
-
         process.exitCode = 1;
-    } else {
-        console.log(
-            "Todos os testes passaram."
-        );
     }
 }
 

@@ -1,0 +1,6 @@
+Supplier,AlternativePayeeAccountNumber,AuthorizationGroup,CreatedByUser,CreationDate,Customer,PaymentIsBlockedForSupplier,PostingIsBlocked,PurchasingIsBlocked,SupplierAccountGroup,SupplierFullName,SupplierName,VATRegistration,BirthDate,ConcatenatedInternationalLocNo,DeletionIndicator,FiscalAddress,Industry,InternationalLocationNumber1,InternationalLocationNumber2,InternationalLocationNumber3,IsNaturalPerson,PaymentReason,ResponsibleType,SuplrQltyInProcmtCertfnValidTo,SuplrQualityManagementSystem,SupplierCorporateGroup,SupplierProcurementBlock,TaxNumber1,TaxNumber2,TaxNumber3,TaxNumber4,TaxNumber5,TaxNumberResponsible,TaxNumberType,SuplrProofOfDelivRlvtCode,BR_TaxIsSplit,DataExchangeInstructionKey
+1000000001,,,,,,,,,,Fornecedor ABC Ltda,Fornecedor ABC,,,,,,,,,,,,,,,,,,,,,,,,,,
+1000000002,,,,,,,,,,Fornecedor XPTO S.A.,Fornecedor XPTO,,,,,,,,,,,,,,,,,,,,,,,,,,
+1000000003,,,,,,,,,,Fornecedor Teste Ltda,Fornecedor Teste,,,,,,,,,,,,,,,,,,,,,,,,,,
+1000000004,,,,,,,,,,Industria Brasil S.A.,Industria Brasil,,,,,,,,,,,,,,,,,,,,,,,,,,
+1000000005,,,,,,,,,,Fornecedor Global Ltda,Fornecedor Global,,,,,,,,,,,,,,,,,,,,,,,,,,

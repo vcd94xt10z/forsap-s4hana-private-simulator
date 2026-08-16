@@ -1,0 +1,17 @@
+{
+  "name": "forsap-s4hana-private-simulator",
+  "version": "1.0.0",
+  "description": "Simulador local de APIs OData do SAP S/4HANA Private Edition",
+  "type": "module",
+  "dependencies": {
+    "@sap/cds": "^10"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^3"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch"
+  },
+  "private": true
+}

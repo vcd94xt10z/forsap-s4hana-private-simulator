@@ -1,0 +1,8 @@
+node_modules/
+gen/
+*.db
+*.sqlite
+npm-debug.log*
+.DS_Store
+.vscode/
+result-tests.html

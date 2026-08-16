@@ -1,0 +1,42 @@
+namespace forsap.s4hana;
+
+entity A_Supplier {
+    key Supplier : String(10);
+    AlternativePayeeAccountNumber : String(10);
+    AuthorizationGroup : String(4);
+    CreatedByUser : String(12);
+    CreationDate : Date;
+    Customer : String(10);
+    PaymentIsBlockedForSupplier : Boolean;
+    PostingIsBlocked : Boolean;
+    PurchasingIsBlocked : Boolean;
+    SupplierAccountGroup : String(4);
+    SupplierFullName : String(220);
+    SupplierName : String(80);
+    VATRegistration : String(20);
+    BirthDate : Date;
+    ConcatenatedInternationalLocNo : String(20);
+    DeletionIndicator : Boolean;
+    FiscalAddress : String(10);
+    Industry : String(4);
+    InternationalLocationNumber1 : String(7);
+    InternationalLocationNumber2 : String(5);
+    InternationalLocationNumber3 : String(1);
+    IsNaturalPerson : String(1);
+    PaymentReason : String(4);
+    ResponsibleType : String(2);
+    SuplrQltyInProcmtCertfnValidTo : Date;
+    SuplrQualityManagementSystem : String(4);
+    SupplierCorporateGroup : String(10);
+    SupplierProcurementBlock : String(2);
+    TaxNumber1 : String(16);
+    TaxNumber2 : String(11);
+    TaxNumber3 : String(18);
+    TaxNumber4 : String(18);
+    TaxNumber5 : String(60);
+    TaxNumberResponsible : String(30);
+    TaxNumberType : String(2);
+    SuplrProofOfDelivRlvtCode : String(1);
+    BR_TaxIsSplit : Boolean;
+    DataExchangeInstructionKey : String(2);
+}

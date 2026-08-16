@@ -4,9 +4,7 @@ import { fileURLToPath } from "url";
 
 const BASE_PATH = "/sap/opu/odata/sap/API_BUSINESS_PARTNER";
 const ENTITY = "forsap.s4hana.A_Supplier";
-
-const ENTITY_ROUTE =
-    /^\/sap\/opu\/odata\/sap\/API_BUSINESS_PARTNER\/A_Supplier\('([^']+)'\)$/;
+const ENTITY_ROUTE = /^\/sap\/opu\/odata\/sap\/API_BUSINESS_PARTNER\/A_Supplier\('([^']+)'\)$/;
 
 function errorResponse(code, message) {
     return {
@@ -21,9 +19,7 @@ async function getSupplier(db, supplier) {
     return db.run(
         SELECT.one
             .from(ENTITY)
-            .where({
-                Supplier: supplier
-            })
+            .where({ Supplier: supplier })
     );
 }
 
@@ -33,23 +29,13 @@ async function updateSupplier(req, res) {
         const supplier = req.params[0];
         const payload = req.body;
 
-        if (
-            !payload ||
-            typeof payload !== "object" ||
-            Array.isArray(payload)
-        ) {
+        if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
             return res.status(400).json(
-                errorResponse(
-                    "BAD_REQUEST",
-                    "Request body inválido."
-                )
+                errorResponse("BAD_REQUEST", "Request body inválido.")
             );
         }
 
-        const existing = await getSupplier(
-            db,
-            supplier
-        );
+        const existing = await getSupplier(db, supplier);
 
         if (!existing) {
             return res.status(404).json(
@@ -60,10 +46,7 @@ async function updateSupplier(req, res) {
             );
         }
 
-        const updateData = {
-            ...payload
-        };
-
+        const updateData = { ...payload };
         delete updateData.Supplier;
         delete updateData.__metadata;
 
@@ -71,461 +54,268 @@ async function updateSupplier(req, res) {
             await db.run(
                 UPDATE(ENTITY)
                     .set(updateData)
-                    .where({
-                        Supplier: supplier
-                    })
+                    .where({ Supplier: supplier })
             );
         }
 
         return res.status(204).send();
-
     } catch (error) {
         console.error(error);
 
         return res.status(500).json(
-            errorResponse(
-                "INTERNAL_ERROR",
-                error.message
-            )
+            errorResponse("INTERNAL_ERROR", error.message)
         );
     }
 }
 
+const TEST_DIR = fileURLToPath(
+    new URL(
+        "../test/",
+        import.meta.url
+    )
+);
+
 cds.on("bootstrap", app => {
+    app.use(express.json());
 
     app.use(
-        express.json()
+        "/test",
+        express.static(TEST_DIR)
     );
 
-    app.get(
-        `${BASE_PATH}/$metadata`,
-        (req, res) => {
+    app.get(`${BASE_PATH}/$metadata`, (req, res) => {
+        const metadataPath = fileURLToPath(
+            new URL(
+                "./external/OP_API_BUSINESS_PARTNER_SRV.edmx",
+                import.meta.url
+            )
+        );
 
-            const metadataPath =
-                fileURLToPath(
-                    new URL(
-                        "./external/OP_API_BUSINESS_PARTNER_SRV.edmx",
-                        import.meta.url
-                    )
+        res.type("application/xml");
+        res.sendFile(metadataPath);
+    });
+
+    app.get(`${BASE_PATH}/A_Supplier`, async (req, res) => {
+        try {
+            const db = await cds.connect.to("db");
+            let query = SELECT.from(ENTITY);
+
+            const {
+                $select,
+                $filter,
+                $orderby,
+                $top,
+                $skip
+            } = req.query;
+
+            if ($select) {
+                const columns = $select
+                    .split(",")
+                    .map(field => field.trim())
+                    .filter(Boolean);
+
+                if (columns.length > 0) {
+                    query.columns(...columns);
+                }
+            }
+
+            if ($filter) {
+                const match = $filter.match(
+                    /^([A-Za-z0-9_]+)\s+(eq|ne|gt|ge|lt|le)\s+'([^']*)'$/
                 );
 
-            res.type(
-                "application/xml"
-            );
+                if (match) {
+                    const [, field, operator, value] = match;
+                    const operators = {
+                        eq: "=",
+                        ne: "!=",
+                        gt: ">",
+                        ge: ">=",
+                        lt: "<",
+                        le: "<="
+                    };
 
-            res.sendFile(
-                metadataPath
-            );
-        }
-    );
-
-    app.get(
-        `${BASE_PATH}/A_Supplier`,
-        async (req, res) => {
-
-            try {
-
-                const db =
-                    await cds.connect.to("db");
-
-                let query =
-                    SELECT.from(ENTITY);
-
-                const {
-                    $select,
-                    $filter,
-                    $orderby,
-                    $top,
-                    $skip
-                } = req.query;
-
-                if ($select) {
-
-                    const columns =
-                        $select
-                            .split(",")
-                            .map(
-                                field =>
-                                    field.trim()
-                            )
-                            .filter(Boolean);
-
-                    if (
-                        columns.length > 0
-                    ) {
-                        query.columns(
-                            ...columns
-                        );
-                    }
-                }
-
-                if ($filter) {
-
-                    const match =
-                        $filter.match(
-                            /^([A-Za-z0-9_]+)\s+(eq|ne|gt|ge|lt|le)\s+'([^']*)'$/
-                        );
-
-                    if (match) {
-
-                        const [
-                            ,
-                            field,
-                            operator,
-                            value
-                        ] = match;
-
-                        const operators = {
-                            eq: "=",
-                            ne: "!=",
-                            gt: ">",
-                            ge: ">=",
-                            lt: "<",
-                            le: "<="
-                        };
-
-                        query.where({
-                            [field]: {
-                                [operators[
-                                    operator
-                                ]]: value
-                            }
-                        });
-                    }
-                }
-
-                if ($orderby) {
-
-                    const [
-                        field,
-                        direction = "asc"
-                    ] =
-                        $orderby
-                            .split(",")[0]
-                            .trim()
-                            .split(/\s+/);
-
-                    query.orderBy({
-                        ref: [field],
-                        sort:
-                            direction.toLowerCase() ===
-                            "desc"
-                                ? "desc"
-                                : "asc"
-                    });
-                }
-
-                let suppliers =
-                    await db.run(query);
-
-                const skip =
-                    $skip !== undefined
-                        ? Number($skip)
-                        : 0;
-
-                const top =
-                    $top !== undefined
-                        ? Number($top)
-                        : undefined;
-
-                if (
-                    !Number.isNaN(skip) &&
-                    skip >= 0
-                ) {
-
-                    if (
-                        top !== undefined &&
-                        !Number.isNaN(top) &&
-                        top >= 0
-                    ) {
-
-                        suppliers =
-                            suppliers.slice(
-                                skip,
-                                skip + top
-                            );
-
-                    } else {
-
-                        suppliers =
-                            suppliers.slice(
-                                skip
-                            );
-                    }
-                }
-
-                return res
-                    .status(200)
-                    .json({
-                        d: {
-                            results:
-                                suppliers
+                    query.where({
+                        [field]: {
+                            [operators[operator]]: value
                         }
                     });
-
-            } catch (error) {
-
-                console.error(error);
-
-                return res
-                    .status(500)
-                    .json(
-                        errorResponse(
-                            "INTERNAL_ERROR",
-                            error.message
-                        )
-                    );
+                }
             }
+
+            if ($orderby) {
+                const [field, direction = "asc"] = $orderby
+                    .split(",")[0]
+                    .trim()
+                    .split(/\s+/);
+
+                query.orderBy({
+                    ref: [field],
+                    sort: direction.toLowerCase() === "desc"
+                        ? "desc"
+                        : "asc"
+                });
+            }
+
+            let suppliers = await db.run(query);
+
+            const skip = $skip !== undefined
+                ? Number($skip)
+                : 0;
+
+            const top = $top !== undefined
+                ? Number($top)
+                : undefined;
+
+            if (!Number.isNaN(skip) && skip >= 0) {
+                if (top !== undefined && !Number.isNaN(top) && top >= 0) {
+                    suppliers = suppliers.slice(skip, skip + top);
+                } else {
+                    suppliers = suppliers.slice(skip);
+                }
+            }
+
+            return res.status(200).json({
+                d: {
+                    results: suppliers
+                }
+            });
+        } catch (error) {
+            console.error(error);
+
+            return res.status(500).json(
+                errorResponse("INTERNAL_ERROR", error.message)
+            );
         }
-    );
+    });
 
     app.get(
         ENTITY_ROUTE,
         async (req, res) => {
-
             try {
-
-                const db =
-                    await cds.connect.to("db");
-
-                const supplier =
-                    req.params[0];
-
-                const result =
-                    await getSupplier(
-                        db,
-                        supplier
-                    );
+                const db = await cds.connect.to("db");
+                const supplier = req.params[0];
+                const result = await getSupplier(db, supplier);
 
                 if (!result) {
-
-                    return res
-                        .status(404)
-                        .json(
-                            errorResponse(
-                                "NOT_FOUND",
-                                `Fornecedor '${supplier}' não encontrado.`
-                            )
-                        );
-                }
-
-                return res
-                    .status(200)
-                    .json({
-                        d: result
-                    });
-
-            } catch (error) {
-
-                console.error(error);
-
-                return res
-                    .status(500)
-                    .json(
+                    return res.status(404).json(
                         errorResponse(
-                            "INTERNAL_ERROR",
-                            error.message
+                            "NOT_FOUND",
+                            `Fornecedor '${supplier}' não encontrado.`
                         )
                     );
-            }
-        }
-    );
-
-    app.post(
-        `${BASE_PATH}/A_Supplier`,
-        async (req, res) => {
-
-            try {
-
-                const db =
-                    await cds.connect.to("db");
-
-                const payload =
-                    req.body;
-
-                if (
-                    !payload ||
-                    typeof payload !== "object" ||
-                    Array.isArray(payload)
-                ) {
-
-                    return res
-                        .status(400)
-                        .json(
-                            errorResponse(
-                                "BAD_REQUEST",
-                                "Request body inválido."
-                            )
-                        );
                 }
 
-                if (
-                    payload.Supplier ===
-                        undefined ||
-                    payload.Supplier ===
-                        null ||
-                    String(
-                        payload.Supplier
-                    ).trim() === ""
-                ) {
+                return res.status(200).json({
+                    d: result
+                });
+            } catch (error) {
+                console.error(error);
 
-                    return res
-                        .status(400)
-                        .json(
-                            errorResponse(
-                                "MISSING_KEY",
-                                "O campo Supplier é obrigatório."
-                            )
-                        );
-                }
-
-                const supplier =
-                    String(
-                        payload.Supplier
-                    );
-
-                const existing =
-                    await getSupplier(
-                        db,
-                        supplier
-                    );
-
-                if (existing) {
-
-                    return res
-                        .status(400)
-                        .json(
-                            errorResponse(
-                                "DUPLICATE_ENTRY",
-                                `O fornecedor '${supplier}' já existe.`
-                            )
-                        );
-                }
-
-                const entry = {
-                    ...payload
-                };
-
-                delete entry.__metadata;
-
-                await db.run(
-                    INSERT
-                        .into(ENTITY)
-                        .entries(entry)
+                return res.status(500).json(
+                    errorResponse("INTERNAL_ERROR", error.message)
                 );
-
-                const created =
-                    await getSupplier(
-                        db,
-                        supplier
-                    );
-
-                return res
-                    .status(201)
-                    .json({
-                        d: created
-                    });
-
-            } catch (error) {
-
-                console.error(error);
-
-                return res
-                    .status(500)
-                    .json(
-                        errorResponse(
-                            "INTERNAL_ERROR",
-                            error.message
-                        )
-                    );
             }
         }
     );
 
-    app.patch(
-        ENTITY_ROUTE,
-        updateSupplier
-    );
+    app.post(`${BASE_PATH}/A_Supplier`, async (req, res) => {
+        try {
+            const db = await cds.connect.to("db");
+            const payload = req.body;
 
-    app.put(
-        ENTITY_ROUTE,
-        updateSupplier
-    );
-
-    app.use(
-        (req, res, next) => {
+            if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+                return res.status(400).json(
+                    errorResponse("BAD_REQUEST", "Request body inválido.")
+                );
+            }
 
             if (
-                req.method === "MERGE" &&
-                ENTITY_ROUTE.test(
-                    req.path
-                )
+                payload.Supplier === undefined ||
+                payload.Supplier === null ||
+                String(payload.Supplier).trim() === ""
             ) {
-
-                return updateSupplier(
-                    req,
-                    res
+                return res.status(400).json(
+                    errorResponse("MISSING_KEY", "O campo Supplier é obrigatório.")
                 );
             }
 
-            return next();
+            const supplier = String(payload.Supplier);
+            const existing = await getSupplier(db, supplier);
+
+            if (existing) {
+                return res.status(400).json(
+                    errorResponse(
+                        "DUPLICATE_ENTRY",
+                        `O fornecedor '${supplier}' já existe.`
+                    )
+                );
+            }
+
+            const entry = { ...payload };
+            delete entry.__metadata;
+
+            await db.run(
+                INSERT.into(ENTITY).entries(entry)
+            );
+
+            const created = await getSupplier(db, supplier);
+
+            return res.status(201).json({
+                d: created
+            });
+        } catch (error) {
+            console.error(error);
+
+            return res.status(500).json(
+                errorResponse("INTERNAL_ERROR", error.message)
+            );
         }
-    );
+    });
+
+    app.patch(ENTITY_ROUTE, updateSupplier);
+    app.put(ENTITY_ROUTE, updateSupplier);
+
+    app.use((req, res, next) => {
+        if (
+            req.method === "MERGE" &&
+            ENTITY_ROUTE.test(req.path)
+        ) {
+            return updateSupplier(req, res);
+        }
+
+        return next();
+    });
 
     app.delete(
         ENTITY_ROUTE,
         async (req, res) => {
-
             try {
-
-                const db =
-                    await cds.connect.to("db");
-
-                const supplier =
-                    req.params[0];
-
-                const existing =
-                    await getSupplier(
-                        db,
-                        supplier
-                    );
+                const db = await cds.connect.to("db");
+                const supplier = req.params[0];
+                const existing = await getSupplier(db, supplier);
 
                 if (!existing) {
-
-                    return res
-                        .status(404)
-                        .json(
-                            errorResponse(
-                                "NOT_FOUND",
-                                `Fornecedor '${supplier}' não encontrado.`
-                            )
-                        );
+                    return res.status(404).json(
+                        errorResponse(
+                            "NOT_FOUND",
+                            `Fornecedor '${supplier}' não encontrado.`
+                        )
+                    );
                 }
 
                 await db.run(
-                    DELETE
-                        .from(ENTITY)
-                        .where({
-                            Supplier: supplier
-                        })
+                    DELETE.from(ENTITY)
+                        .where({ Supplier: supplier })
                 );
 
-                return res
-                    .status(204)
-                    .send();
-
+                return res.status(204).send();
             } catch (error) {
-
                 console.error(error);
 
-                return res
-                    .status(500)
-                    .json(
-                        errorResponse(
-                            "INTERNAL_ERROR",
-                            error.message
-                        )
-                    );
+                return res.status(500).json(
+                    errorResponse("INTERNAL_ERROR", error.message)
+                );
             }
         }
     );

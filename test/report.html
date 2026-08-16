@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORSAP - Resultado dos Testes</title>
+<link rel="stylesheet" href="./report.css">
+</head>
+<body>
+<header class="header">
+  <div class="title">FORSAP - Resultado dos Testes</div>
+  <div class="subtitle">Simulador SAP S/4HANA Private Edition</div>
+  <div id="test-times" class="times">Carregando...</div>
+</header>
+
+<section class="filters">
+  <div class="filters-title">Filtros</div>
+  <div class="filter-groups">
+    <div class="filter-group">
+      <div class="filter-group-title">Resultado</div>
+      <div class="filter-options">
+        <label class="filter-option"><input type="checkbox" name="status" value="OK" checked> ✓ OK</label>
+        <label class="filter-option"><input type="checkbox" name="status" value="ERRO" checked> ✕ Erro</label>
+        <label class="filter-option"><input type="checkbox" name="status" value="IGNORADO" checked> ⚠ Ignorado</label>
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">OData</div>
+      <div class="filter-options">
+        <label class="filter-option"><input type="checkbox" name="protocol" value="V2" checked> OData V2</label>
+        <label class="filter-option"><input type="checkbox" name="protocol" value="V4" checked> OData V4</label>
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Método HTTP</div>
+      <div class="filter-options">
+        <label class="filter-option"><input type="checkbox" name="method" value="GET" checked> GET</label>
+        <label class="filter-option"><input type="checkbox" name="method" value="POST" checked> POST</label>
+        <label class="filter-option"><input type="checkbox" name="method" value="PUT" checked> PUT</label>
+        <label class="filter-option"><input type="checkbox" name="method" value="PATCH" checked> PATCH</label>
+        <label class="filter-option"><input type="checkbox" name="method" value="MERGE" checked> MERGE</label>
+        <label class="filter-option"><input type="checkbox" name="method" value="DELETE" checked> DELETE</label>
+      </div>
+    </div>
+  </div>
+  <div class="filter-actions">
+    <button id="select-all" class="filter-button">Selecionar todos</button>
+    <button id="clear-all" class="filter-button">Limpar filtros</button>
+  </div>
+</section>
+
+<section class="summary">
+  <div class="summary-card"><strong id="summary-total">0</strong><div class="summary-label">Total</div></div>
+  <div class="summary-card"><strong id="summary-ok">0</strong><div class="summary-label">OK</div></div>
+  <div class="summary-card"><strong id="summary-error">0</strong><div class="summary-label">Erros</div></div>
+  <div class="summary-card"><strong id="summary-ignored">0</strong><div class="summary-label">Ignorados</div></div>
+</section>
+
+<main class="container">
+  <table>
+    <thead><tr>
+      <th>Categoria</th><th>Teste</th><th>Método</th><th>Esperado</th>
+      <th>Recebido</th><th>Resultado</th><th>URL</th>
+    </tr></thead>
+    <tbody id="results-body"></tbody>
+  </table>
+  <div id="no-results" class="no-results">Nenhum teste corresponde aos filtros selecionados.</div>
+</main>
+
+<div id="error-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Detalhes do erro</h2>
+      <button id="close-modal" class="close">×</button>
+    </div>
+    <div id="error-details" class="details"></div>
+    <h3>Response Body</h3>
+    <pre id="error-body"></pre>
+  </div>
+</div>
+
+<script src="./report.js"></script>
+</body>
+</html>

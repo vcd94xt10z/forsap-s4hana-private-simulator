@@ -5,4 +5,3 @@ gen/
 npm-debug.log*
 .DS_Store
 .vscode/
-result-tests.html
